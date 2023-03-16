@@ -3,7 +3,7 @@ import pickle
 import numpy as np
 import requests
 import io
-from sklearn import linear_model
+
 
 
 @st.cache(allow_output_mutation=True)
