@@ -137,7 +137,6 @@
 
 
 import streamlit as st
-import openpyxl as xl
 import pandas as pd
 import matplotlib.pyplot as plt
 import requests
@@ -145,6 +144,7 @@ import io
 import seaborn as sns
 import folium
 from sklearn import linear_model
+import plotly.graph_objects as go
 
 
 def shorten_categories(categories, cutoff):
@@ -176,44 +176,70 @@ df = load_data()
 
 
 def show_explorepage():
-    st.title("judul coba")
+    st.title("Airbnb Analytics Exploration")
 
     # 1
     st.write(
-        """### 1. Stack Overflow """)
+        """### """)
     data = df["neighbourhood_group"].value_counts()
     fig1, ax1 = plt.subplots()
     ax1.pie(data, labels=data.index, autopct="%1.1f%%", shadow=True, startangle=90)
     ax1.axis("equal")  # Equal aspect ratio ensures that pie is drawn as a circle.
-    st.write("""#### Number of Data from different places""")
+    st.write("""#### Airbnb distribution in Singapore region""")
     st.pyplot(fig1)
 
     # 2
-    st.write(
-        """
-    ####2. judul tes3
-    """
-    )
+    st.write('\n\n')
+    st.write('\n\n')
+    st.write("""#### Airbnb Price Distribution in Singapore region""")
     data = df.groupby(["neighbourhood_group"])["price"].mean().sort_values(ascending=True)
     st.bar_chart(data)
 
+
+
+
+    # st.write('\n\n')
+    # st.write('\n\n')
+    # st.write("""#### Airbnb price distribution by city""")
+    # fig, ax = plt.subplots()
+    # sns.set(style="whitegrid")
+    # sns.boxplot(x="neighbourhood_group", y="price", data=df, ax=ax)
+    # ax.set_xlabel("Neighbourhood Group")
+    # ax.set_ylabel("Price")
+    # ax.set_title("Price Trend by Neighbourhood Group")
+    # plt.xticks(rotation=90)
+    # st.pyplot(fig)
+
+        # Add some space
+    st.write('\n\n')
+
+    # Add a title
+    # st.write("""#### Airbnb price distribution by city""")
+
+    # Create a scatter plot
+    fig, ax = plt.subplots()
+    sns.scatterplot(x="price", y="neighbourhood_group", data=df, ax=ax)
+    ax.set_xlabel("Price")
+    ax.set_ylabel("Neighbourhood Group")
+    ax.set_title("Price Distribution by Neighbourhood Group")
+
+    # Show the plot in Streamlit
+    st.pyplot(fig)
+
     # 3
-    st.write(
-        """
-    ####3. judul tes4
-    """
-    )
+    st.write('\n\n')
+    st.write('\n\n')
+    st.write("""#### Price correlation with minimum lease term requirements""")
     data = df.groupby(["minimum_nights"])["price"].mean().sort_values(ascending=True)
     st.line_chart(data)
 
     # 4
-    st.write(
-        """
-    #### 4. Price Trend by Neighbourhood Group
-        """
-    )
+    st.write('\n\n')
+    st.write('\n\n')
+    st.write("""#### Price distribution based on rental amount""")
     # menentukan rentang harga
-    bins = [0, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500]
+    bins = [0, 50, 
+            100, 150, 200, 250, 300, 350, 400, 450, 500]
 
     # menghitung jumlah listing pada setiap rentang harga
     hist = pd.cut(df['price'], bins=bins).value_counts(sort=False)
@@ -222,17 +248,44 @@ def show_explorepage():
     fig, ax = plt.subplots()
     ax.bar(hist.index.astype(str), hist.values)
     ax.set_xticklabels(hist.index.astype(str), rotation=45)
-    ax.set_xlabel('Rentang Harga (SGD)')
-    ax.set_ylabel('Jumlah Listing')
-    ax.set_title('Distribusi Harga Listing Airbnb di Singapura')
+    ax.set_xlabel('Price Range (SGD)')
+    ax.set_ylabel('Listing Number')
+    ax.set_title('Price distribution based on rental amount')
     st.pyplot(fig)
 
-    # 5
-    st.write(
-    """
-    #### Price Trend by Room Type
-    """
+    st.write('\n\n')
+    # st.write("""#### Price distribution based on rental amount""")
+
+    # menentukan rentang harga
+    bins = [0, 50, 100, 150, 200, 250, 300, 350, 400, 450, 500]
+
+    # menghitung jumlah listing pada setiap rentang harga
+    hist = pd.cut(df['price'], bins=bins).value_counts(sort=False)
+
+    # membuat diagram distribusi harga
+    fig = go.Figure(go.Funnel(
+        y=hist.index.astype(str),
+        x=hist.values,
+        textinfo="value+percent previous",
+        textposition='inside'
+    ))
+    fig.update_layout(
+        title="Price distribution based on rental amount",
+        xaxis_title="Listing Number",
+        yaxis_title="Price Range (SGD)"
     )
+
+    st.plotly_chart(fig)
+        
+
+
+
+
+
+    # 5
+    st.write('\n\n')
+    st.write('\n\n')
+    st.write("""#### Pricing trends by room type""")
     fig, ax = plt.subplots()
     sns.boxplot(x="room_type", y="price", data=df, ax=ax)
     ax.set_xlabel("Room Type")
@@ -255,20 +308,7 @@ def show_explorepage():
     # plt.ylabel("Harga")
     # st.pyplot()
 
-    st.write(
-        """
-        #### 6. Price Trend by Neighbourhood Group
-        """
-    )
-
-    fig, ax = plt.subplots()
-    sns.set(style="whitegrid")
-    sns.boxplot(x="neighbourhood_group", y="price", data=df, ax=ax)
-    ax.set_xlabel("Neighbourhood Group")
-    ax.set_ylabel("Price")
-    ax.set_title("Price Trend by Neighbourhood Group")
-    plt.xticks(rotation=90)
-    st.pyplot(fig)
+   
 
 
 
@@ -287,16 +327,24 @@ def show_explorepage():
 
 
 
-    st.write(
-        """
-        #### 7 Price Trend by Neighbourhood Group
-        """
-    )
+    # st.write(
+    #     """
+    #     #### 7 Price Trend by Neighbourhood Group
+    #     """
+    # )
 
-    fig, ax = plt.subplots(1, 1, figsize=(12, 7))
-    df.boxplot('price', 'neighbourhood_group', ax=ax)
-    ax.set_title('Price Trend by Neighbourhood Group')
-    ax.set_xlabel('Neighbourhood Group')
-    ax.set_ylabel('Price')
-    plt.xticks(rotation=90)
-    st.pyplot(fig)
+    # fig, ax = plt.subplots(1, 1, figsize=(12, 7))
+    # df.boxplot('price', 'neighbourhood_group', ax=ax)
+    # ax.set_title('Price Trend by Neighbourhood Group')
+    # ax.set_xlabel('Neighbourhood Group')
+    # ax.set_ylabel('Price')
+    # plt.xticks(rotation=90)
+    # st.pyplot(fig)
+
+
+
+    st.write('\n\n')
+    st.write(""" Kekurangan dari explore page ini:  """)
+    st.markdown("map tidak muncul karena heavy loading, pemilihan jenis grafix mungkin belum sesuai penggunaanya, juga masih banyak grafix yang bisa di masukan ke page ini")
+    st.write('\n\n')
+    st.write("""created by fenira for dqlab""")
