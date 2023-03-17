@@ -3,7 +3,7 @@ import pickle
 import numpy as np
 import requests
 import io
-
+# from sklearn import linear_model
 
 
 @st.cache(allow_output_mutation=True)
@@ -21,9 +21,9 @@ le_place = data["le_place"]
 
 
 def show_predpage():
-    st.title("judul 1")
+    st.title("Singapore Airbnb Price Prediction")
 
-    st.write("""### judul2""")
+    st.write(""" """)
 
     States = (
        "North Region", "Central Region", "West Region", "East Region", "North-East Region"
@@ -40,12 +40,12 @@ def show_predpage():
        'Sengkang', 'Choa Chu Kang', 'Bukit Panjang',
     )
 
-    place_group = st.selectbox("le_place_group", States)
-    place = st.selectbox("le_place", Town)
+    place_group = st.selectbox("Region", States)
+    place = st.selectbox("City", Town)
 
-    harga_pred = st.slider("kategori_tes", 0, 550, 3)
+    harga_pred = st.slider("Price", 0, 550, 3)
 
-    ok = st.button("kategori_price")
+    ok = st.button("Price Prediction")
     if ok:
         x = np.array([[place_group, place, harga_pred ]])
         x[:, 0] = le_place_group.transform(x[:,0])
@@ -54,3 +54,10 @@ def show_predpage():
 
         price = regressor.predict(x)
         st.subheader(f"The estimated price is ${price[0]:.2f}")
+
+
+    st.write('\n\n')
+    st.write(""" Kekurangan dari prediksi price:  """)
+    st.markdown("Kategori town masih belum di kelompokkan \n\n contoh : province A: town : h, i , j---- province B: town : k, l, n \n\n di page ini yang province A & B semua memiliki town : h i j k l n.")
+    st.write('\n\n')
+    st.write("""created by fenira for dqlab""")
